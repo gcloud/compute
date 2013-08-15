@@ -1,22 +1,17 @@
 // GCloud - Go Packages for Cloud Services.
 // Copyright (c) 2013 Garrett Woodworth (https://github.com/gwoo).
 
-package compute
+package vbox
 
 import (
 	p "github.com/gcloud/compute/providers"
-	"github.com/gcloud/identity"
 )
 
-// The Servers type interacts with Compute services.
-type Servers struct {
-	account  identity.Account
-	Provider string
-}
+type Servers struct{}
 
 // List servers available on the account.
 func (s *Servers) List() string {
-	return p.Providers[s.Provider].Servers.List()
+	return "virtualbox"
 }
 
 // Show server information for a given id.
@@ -36,3 +31,7 @@ func (s *Servers) Start() {}
 
 // Stop a server that is running.
 func (s *Servers) Stop() {}
+
+func init() {
+	p.RegisterServers("vbox", &Servers{})
+}

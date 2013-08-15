@@ -1,16 +1,13 @@
 // GCloud - Go Packages for Cloud Services.
 // Copyright (c) 2013 Garrett Woodworth (https://github.com/gwoo).
 
-package compute
+package vbox
 
 import (
-	_ "github.com/gcloud/compute/providers/vbox"
 	"testing"
 )
 
 func Test_ServersList(t *testing.T) {
-	servers := &Servers{Provider: "vbox"}
-	print(servers.List())
 	t.Error("ServersList failed.")
 }
 
