@@ -4,20 +4,37 @@
 package providers
 
 type Provider struct {
-	Servers Servers
-	// Images() Images
-	// Locations() Locations
-	// Sizes() Sizes
+	Servers   Servers
+	Images    Images
+	Locations Locations
+	Sizes     Sizes
 }
 
 type Servers interface {
 	List() string
-	// Show(string)
-	// Create()
-	// Destroy()
-	// Reboot()
-	// Start()
-	// Stop()
+	Show(string)
+	Create()
+	Destroy()
+	Reboot()
+	Start()
+	Stop()
+}
+
+type Images interface {
+	List() string
+	Show(string)
+	Create()
+	Destroy()
+}
+
+type Locations interface {
+	List() string
+	Show(string)
+}
+
+type Sizes interface {
+	List() string
+	Show(string)
 }
 
 var Providers = make(map[string]*Provider)
