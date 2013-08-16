@@ -17,7 +17,7 @@ func (s *MockServers) List() ([]byte, error) {
 func (s *MockServers) Show(id string) ([]byte, error) {
 	return []byte(`{"Name":"My Server","Id": "616fb98f-46ca-475e-917e-2563e5a8cd19"}`), nil
 }
-func (s *MockServers) Create(interface{}) ([]byte, error) {
+func (s *MockServers) Create(n *p.Server) ([]byte, error) {
 	return []byte(`{"Name":"My Server","Id": "616fb98f-46ca-475e-917e-2563e5a8cd19"}`), nil
 }
 func (s *MockServers) Destroy(id string) (bool, error) {
@@ -76,7 +76,7 @@ func Test_ServersShow(t *testing.T) {
 
 func Test_ServersCreate(t *testing.T) {
 	servers := &Servers{Provider: "mock"}
-	result, err := servers.Create(&Server{
+	result, err := servers.Create(&p.Server{
 		Name:  "My Server",
 		Image: "70a599e0-31e7-49b7-b260-868f441e862b",
 		Size:  "1"})

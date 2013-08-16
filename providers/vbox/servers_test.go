@@ -5,20 +5,33 @@ package vbox
 
 import (
 	"encoding/json"
+	p "github.com/gcloud/compute/providers"
 	"testing"
 )
 
-type MockServer struct {
-	Id         string
-	Name       string
-	State      string
-	PublicIps  []string
-	PrivateIps []string
-	Size       string
-	Image      string
-}
+var name = "My Server"
 
-var id string
+func Test_ServersCreate(t *testing.T) {
+	servers := &Servers{}
+	result, err := servers.Create(&p.Server{Name: name})
+	if err != nil {
+		t.Error("Servers Create failed with " + err.Error() + ".")
+	}
+	if result == nil {
+		t.Error("Results should not be nil.")
+	}
+	var server p.Server
+	err = json.Unmarshal(result, &server)
+	if err != nil {
+		t.Error("Servers Create failed with " + err.Error() + ".")
+	}
+	if len(server.Id) <= 0 {
+		t.Error("Wrong value for id.")
+	}
+	if len(server.Name) <= 0 {
+		t.Error("Wrong value for name.")
+	}
+}
 
 func Test_ServersList(t *testing.T) {
 	servers := &Servers{}
@@ -29,7 +42,7 @@ func Test_ServersList(t *testing.T) {
 	if results == nil {
 		t.Error("Results should not be nil.")
 	}
-	var response []MockServer
+	var response []p.Server
 	err = json.Unmarshal(results, &response)
 
 	if err != nil {
@@ -42,20 +55,19 @@ func Test_ServersList(t *testing.T) {
 		if len(server.Name) <= 0 {
 			t.Error("Wrong value for name.")
 		}
-		id = server.Name
 	}
 }
 
 func Test_ServersShow(t *testing.T) {
 	servers := &Servers{}
-	result, err := servers.Show(id)
+	result, err := servers.Show(name)
 	if err != nil {
 		t.Error("Servers Show failed with " + err.Error() + ".")
 	}
 	if result == nil {
 		t.Error("Results should not be nil.")
 	}
-	var server MockServer
+	var server p.Server
 	err = json.Unmarshal(result, &server)
 	if err != nil {
 		t.Error("Servers Show failed with " + err.Error() + ".")
@@ -68,53 +80,9 @@ func Test_ServersShow(t *testing.T) {
 	}
 }
 
-func Test_ServersCreate(t *testing.T) {
-	servers := &Servers{}
-	result, err := servers.Create(&MockServer{Name: "My Server"})
-	if err != nil {
-		t.Error("Servers Create failed with " + err.Error() + ".")
-	}
-	if result == nil {
-		t.Error("Results should not be nil.")
-	}
-	var r map[string]string
-	err = json.Unmarshal(result, &r)
-	if err != nil {
-		t.Error("Servers Create failed with " + err.Error() + ".")
-	}
-	if len(r["id"]) <= 0 {
-		t.Error("Wrong value for id.")
-	}
-	if len(r["name"]) <= 0 {
-		t.Error("Wrong value for name.")
-	}
-}
-
-func Test_ServersDestroy(t *testing.T) {
-	servers := &Servers{}
-	ok, err := servers.Destroy("616fb98f-46ca-475e-917e-2563e5a8cd19")
-	if !ok {
-		t.Error("Servers Destroy failed.")
-	}
-	if err != nil {
-		t.Error("Servers Destroy failed with " + err.Error() + ".")
-	}
-}
-
-func Test_ServersReboot(t *testing.T) {
-	servers := &Servers{}
-	ok, err := servers.Reboot("616fb98f-46ca-475e-917e-2563e5a8cd19")
-	if !ok {
-		t.Error("Servers Reboot failed.")
-	}
-	if err != nil {
-		t.Error("Servers Reboot failed with " + err.Error() + ".")
-	}
-}
-
 func Test_ServersStart(t *testing.T) {
 	servers := &Servers{}
-	ok, err := servers.Start("616fb98f-46ca-475e-917e-2563e5a8cd19")
+	ok, err := servers.Start(name)
 	if !ok {
 		t.Error("Servers Start failed.")
 	}
@@ -123,13 +91,35 @@ func Test_ServersStart(t *testing.T) {
 	}
 }
 
+func Test_ServersReboot(t *testing.T) {
+	servers := &Servers{}
+	ok, err := servers.Reboot(name)
+	if !ok {
+		t.Error("Servers Reboot failed.")
+	}
+	if err != nil {
+		t.Error("Servers Reboot failed with " + err.Error() + ".")
+	}
+}
+
 func Test_ServersStop(t *testing.T) {
 	servers := &Servers{}
-	ok, err := servers.Stop("616fb98f-46ca-475e-917e-2563e5a8cd19")
+	ok, err := servers.Stop(name)
 	if !ok {
 		t.Error("Servers Stop failed.")
 	}
 	if err != nil {
 		t.Error("Servers Stop failed with " + err.Error() + ".")
+	}
+}
+
+func Test_ServersDestroy(t *testing.T) {
+	servers := &Servers{}
+	ok, err := servers.Destroy(name)
+	if !ok {
+		t.Error("Servers Destroy failed.")
+	}
+	if err != nil {
+		t.Error("Servers Destroy failed with " + err.Error() + ".")
 	}
 }

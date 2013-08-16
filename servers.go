@@ -15,25 +15,14 @@ type Servers struct {
 	Provider string
 }
 
-type Server struct {
-	Id         string
-	Name       string
-	State      string
-	PublicIps  []string
-	PrivateIps []string
-	Size       string
-	Image      string
-	Provider   string
-}
-
 // List servers available on the account.
-func (s *Servers) List() (*[]Server, error) {
+func (s *Servers) List() (*[]p.Server, error) {
 	p.Providers[s.Provider].Account = s.Account
 	result, err := p.Providers[s.Provider].Servers.List()
 	if err != nil {
 		return nil, err
 	}
-	var records []Server
+	var records []p.Server
 	err = json.Unmarshal(result, &records)
 
 	if err != nil {
@@ -43,13 +32,13 @@ func (s *Servers) List() (*[]Server, error) {
 }
 
 // Show server information for a given id.
-func (s *Servers) Show(id string) (*Server, error) {
+func (s *Servers) Show(id string) (*p.Server, error) {
 	p.Providers[s.Provider].Account = s.Account
 	result, err := p.Providers[s.Provider].Servers.Show(id)
 	if err != nil {
 		return nil, err
 	}
-	var record Server
+	var record p.Server
 	err = json.Unmarshal(result, &record)
 
 	if err != nil {
@@ -59,13 +48,13 @@ func (s *Servers) Show(id string) (*Server, error) {
 }
 
 // Create a server.
-func (s *Servers) Create(n *Server) (*Server, error) {
+func (s *Servers) Create(n *p.Server) (*p.Server, error) {
 	p.Providers[s.Provider].Account = s.Account
 	result, err := p.Providers[s.Provider].Servers.Create(n)
 	if err != nil {
 		return nil, err
 	}
-	var record Server
+	var record p.Server
 	err = json.Unmarshal(result, &record)
 
 	if err != nil {

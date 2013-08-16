@@ -21,9 +21,9 @@ func (s *Servers) List() ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	re := regexp.MustCompile("(?P<name>[A-z -]+)(?P<id>[A-z0-9-]+)")
 	r := strings.NewReplacer("\r", "")
 	results := strings.Split(strings.Trim(r.Replace(string(output)), "\n"), "\n")
+	re := regexp.MustCompile("(?P<name>[A-z -]+)(?P<id>[A-z0-9-]+)")
 	responses := make([]interface{}, 0)
 	for _, v := range results {
 		matches := re.FindAllString(v, -1)
@@ -59,28 +59,72 @@ func (s *Servers) Show(id string) ([]byte, error) {
 }
 
 // Create a server.
-func (s *Servers) Create(n interface{}) ([]byte, error) {
-	return []byte(`{"id": "1", "name": "test"}`), nil
+func (s *Servers) Create(n *p.Server) ([]byte, error) {
+	c := exec.Command("VBoxManage", "createvm", "--name", n.Name, "--register")
+	output, err := c.CombinedOutput()
+	if err != nil {
+		return nil, err
+	}
+	re := regexp.MustCompile("([A-z0-9]{8}-[A-z0-9]{4}-[A-z0-9]{4}-[A-z0-9]{4}-[A-z0-9]{12})")
+	matches := re.FindAllString(string(output), -1)
+	if len(matches) < 1 {
+		return nil, err
+	}
+	n.Id = matches[0]
+	b, err := json.Marshal(n)
+	return b, err
 }
 
 // Destroy a server.
 func (s *Servers) Destroy(id string) (bool, error) {
-	return false, nil
-}
-
-// Reboot a server.
-func (s *Servers) Reboot(id string) (bool, error) {
-	return false, nil
+	c := exec.Command("VBoxManage", "unregistervm", id, "--delete")
+	output, err := c.CombinedOutput()
+	if err != nil {
+		return false, err
+	}
+	if output != nil {
+		return true, nil
+	}
+	return false, err
 }
 
 // Start a server that is stopped.
 func (s *Servers) Start(id string) (bool, error) {
-	return false, nil
+	c := exec.Command("VBoxManage", "startvm", id, "--type", "headless")
+	output, err := c.CombinedOutput()
+	if err != nil {
+		return false, err
+	}
+	if output != nil {
+		return true, nil
+	}
+	return false, err
+}
+
+// Reboot a server.
+func (s *Servers) Reboot(id string) (bool, error) {
+	c := exec.Command("VBoxManage", "controlvm", id, "reset")
+	output, err := c.CombinedOutput()
+	if err != nil {
+		return false, err
+	}
+	if output != nil {
+		return true, nil
+	}
+	return false, err
 }
 
 // Stop a server that is running.
 func (s *Servers) Stop(id string) (bool, error) {
-	return false, nil
+	c := exec.Command("VBoxManage", "controlvm", id, "poweroff")
+	output, err := c.CombinedOutput()
+	if err != nil {
+		return false, err
+	}
+	if output != nil {
+		return true, nil
+	}
+	return false, err
 }
 
 func init() {

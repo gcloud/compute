@@ -18,11 +18,22 @@ type Provider struct {
 type Servers interface {
 	List() ([]byte, error)
 	Show(string) ([]byte, error)
-	Create(interface{}) ([]byte, error)
+	Create(*Server) ([]byte, error)
 	Destroy(id string) (bool, error)
 	Reboot(id string) (bool, error)
 	Start(id string) (bool, error)
 	Stop(id string) (bool, error)
+}
+
+type Server struct {
+	Id         string
+	Name       string
+	State      string
+	PublicIps  []string
+	PrivateIps []string
+	Size       string
+	Image      string
+	Provider   string
 }
 
 type Images interface {
