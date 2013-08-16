@@ -18,10 +18,7 @@ type MockServer struct {
 	Image      string
 }
 
-type MockResponse struct {
-	id   string
-	name string
-}
+var id string
 
 func Test_ServersList(t *testing.T) {
 	servers := &Servers{}
@@ -32,40 +29,41 @@ func Test_ServersList(t *testing.T) {
 	if results == nil {
 		t.Error("Results should not be nil.")
 	}
-	var responses []map[string]string
-	err = json.Unmarshal(results, &responses)
+	var response []MockServer
+	err = json.Unmarshal(results, &response)
 
 	if err != nil {
 		t.Error("Servers List failed with " + err.Error() + "(bool, error).")
 	}
-	for _, r := range responses {
-		if len(r["id"]) <= 0 {
+	for _, server := range response {
+		if len(server.Id) <= 0 {
 			t.Error("Wrong value for id.")
 		}
-		if len(r["name"]) <= 0 {
+		if len(server.Name) <= 0 {
 			t.Error("Wrong value for name.")
 		}
+		id = server.Name
 	}
 }
 
 func Test_ServersShow(t *testing.T) {
 	servers := &Servers{}
-	result, err := servers.Show("616fb98f-46ca-475e-917e-2563e5a8cd19")
+	result, err := servers.Show(id)
 	if err != nil {
 		t.Error("Servers Show failed with " + err.Error() + ".")
 	}
 	if result == nil {
 		t.Error("Results should not be nil.")
 	}
-	var r map[string]string
-	err = json.Unmarshal(result, &r)
+	var server MockServer
+	err = json.Unmarshal(result, &server)
 	if err != nil {
 		t.Error("Servers Show failed with " + err.Error() + ".")
 	}
-	if len(r["id"]) <= 0 {
+	if len(server.Id) <= 0 {
 		t.Error("Wrong value for id.")
 	}
-	if len(r["name"]) <= 0 {
+	if len(server.Name) <= 0 {
 		t.Error("Wrong value for name.")
 	}
 }

@@ -5,6 +5,7 @@ package vbox
 
 import (
 	"encoding/json"
+	"github.com/BurntSushi/toml"
 	p "github.com/gcloud/compute/providers"
 	"os/exec"
 	"regexp"
@@ -17,6 +18,9 @@ type Servers struct{}
 func (s *Servers) List() ([]byte, error) {
 	c := exec.Command("VBoxManage", "list", "vms")
 	output, err := c.CombinedOutput()
+	if err != nil {
+		return nil, err
+	}
 	re := regexp.MustCompile("(?P<name>[A-z -]+)(?P<id>[A-z0-9-]+)")
 	r := strings.NewReplacer("\r", "")
 	results := strings.Split(strings.Trim(r.Replace(string(output)), "\n"), "\n")
@@ -24,8 +28,8 @@ func (s *Servers) List() ([]byte, error) {
 	for _, v := range results {
 		matches := re.FindAllString(v, -1)
 		responses = append(responses, map[string]interface{}{
-			"id":   matches[1],
-			"name": matches[0],
+			"Id":   matches[1],
+			"Name": matches[0],
 		})
 	}
 	b, err := json.Marshal(responses)
@@ -34,7 +38,24 @@ func (s *Servers) List() ([]byte, error) {
 
 // Show server information for a given id.
 func (s *Servers) Show(id string) ([]byte, error) {
-	return []byte(`{"id": "1", "name": "test"}`), nil
+	c := exec.Command("VBoxManage", "showvminfo", id, "--machinereadable")
+	output, err := c.CombinedOutput()
+	if err != nil {
+		return nil, err
+	}
+	config := strings.Split(string(output), "Time offset=0")
+	if len(config) != 2 {
+		return nil, nil
+	}
+	var response struct {
+		Id   string `toml:"UUID"`
+		Name string `toml:"name"`
+	}
+	if _, err := toml.Decode(config[0], &response); err != nil {
+		return nil, err
+	}
+	b, err := json.Marshal(response)
+	return b, err
 }
 
 // Create a server.

@@ -29,3 +29,8 @@ API
 ### Sizes
  - list
  - show
+
+
+Development
+-----------
+	go get github.com/BurntSushi/toml
