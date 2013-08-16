@@ -12,6 +12,11 @@ type Images struct {
 	identity.Account
 }
 
+type Image struct {
+	Id   string
+	Name string
+}
+
 // List images available to the account.
 func (s *Images) List() {}
 
