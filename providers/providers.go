@@ -3,7 +3,12 @@
 
 package providers
 
+import (
+	"github.com/gcloud/identity"
+)
+
 type Provider struct {
+	Account   identity.Account
 	Servers   Servers
 	Images    Images
 	Locations Locations
@@ -11,13 +16,13 @@ type Provider struct {
 }
 
 type Servers interface {
-	List() string
-	Show(string)
-	Create()
-	Destroy()
-	Reboot()
-	Start()
-	Stop()
+	List() ([]byte, error)
+	Show(string) ([]byte, error)
+	Create(interface{}) ([]byte, error)
+	Destroy(id string) (bool, error)
+	Reboot(id string) (bool, error)
+	Start(id string) (bool, error)
+	Stop(id string) (bool, error)
 }
 
 type Images interface {
