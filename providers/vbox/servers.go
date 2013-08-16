@@ -4,24 +4,42 @@
 package vbox
 
 import (
+	"encoding/json"
 	p "github.com/gcloud/compute/providers"
+	"os/exec"
+	"regexp"
+	"strings"
 )
 
 type Servers struct{}
 
 // List servers available on the account.
 func (s *Servers) List() ([]byte, error) {
-	return []byte(`[{}]`), nil
+	c := exec.Command("VBoxManage", "list", "vms")
+	output, err := c.CombinedOutput()
+	re := regexp.MustCompile("(?P<name>[A-z -]+)(?P<id>[A-z0-9-]+)")
+	r := strings.NewReplacer("\r", "")
+	results := strings.Split(strings.Trim(r.Replace(string(output)), "\n"), "\n")
+	responses := make([]interface{}, 0)
+	for _, v := range results {
+		matches := re.FindAllString(v, -1)
+		responses = append(responses, map[string]interface{}{
+			"id":   matches[1],
+			"name": matches[0],
+		})
+	}
+	b, err := json.Marshal(responses)
+	return b, err
 }
 
 // Show server information for a given id.
 func (s *Servers) Show(id string) ([]byte, error) {
-	return []byte(`{}`), nil
+	return []byte(`{"id": "1", "name": "test"}`), nil
 }
 
 // Create a server.
 func (s *Servers) Create(n interface{}) ([]byte, error) {
-	return []byte(`{}`), nil
+	return []byte(`{"id": "1", "name": "test"}`), nil
 }
 
 // Destroy a server.
