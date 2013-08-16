@@ -12,13 +12,13 @@ type MockServers struct{}
 
 // List servers available on the account.
 func (s *MockServers) List() ([]byte, error) {
-	return []byte(`[{"Name":"My Server","id": "616fb98f-46ca-475e-917e-2563e5a8cd19"}]`), nil
+	return []byte(`[{"Name":"My Server","Id": "616fb98f-46ca-475e-917e-2563e5a8cd19"}]`), nil
 }
 func (s *MockServers) Show(id string) ([]byte, error) {
-	return []byte(`{"Name":"My Server","id": "616fb98f-46ca-475e-917e-2563e5a8cd19"}`), nil
+	return []byte(`{"Name":"My Server","Id": "616fb98f-46ca-475e-917e-2563e5a8cd19"}`), nil
 }
 func (s *MockServers) Create(interface{}) ([]byte, error) {
-	return []byte(`{"Name":"My Server","id": "616fb98f-46ca-475e-917e-2563e5a8cd19"}`), nil
+	return []byte(`{"Name":"My Server","Id": "616fb98f-46ca-475e-917e-2563e5a8cd19"}`), nil
 }
 func (s *MockServers) Destroy(id string) (bool, error) {
 	return true, nil
@@ -81,7 +81,7 @@ func Test_ServersCreate(t *testing.T) {
 		Image: "70a599e0-31e7-49b7-b260-868f441e862b",
 		Size:  "1"})
 	if err != nil {
-		t.Error("Servers Show failed with " + err.Error() + ".")
+		t.Error("Servers Create failed with " + err.Error() + ".")
 	}
 	if result == nil {
 		t.Error("Results should not be nil.")
