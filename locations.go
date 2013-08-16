@@ -6,7 +6,13 @@ package compute
 import ()
 
 // The locations provided by a compute service.
-type Locations struct {}
+type Locations struct{}
+
+type Location struct {
+	Id      string
+	Name    string
+	Country string
+}
 
 // List available locations.
 func (s *Locations) List() {}
