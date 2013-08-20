@@ -19,7 +19,11 @@ func (s *Servers) List() ([]byte, error) {
 	c := exec.Command("VBoxManage", "list", "vms")
 	output, err := c.CombinedOutput()
 	if err != nil {
-		return nil, err
+		print(string(output))
+		return []byte(`[]`), err
+	}
+	if string(output) == "" {
+		return []byte(`[]`), err
 	}
 	r := strings.NewReplacer("\r", "")
 	results := strings.Split(strings.Trim(r.Replace(string(output)), "\n"), "\n")
@@ -41,11 +45,12 @@ func (s *Servers) Show(id string) ([]byte, error) {
 	c := exec.Command("VBoxManage", "showvminfo", id, "--machinereadable")
 	output, err := c.CombinedOutput()
 	if err != nil {
-		return nil, err
+		print(string(output))
+		return []byte(`{}`), err
 	}
 	config := strings.Split(string(output), "Time offset=0")
 	if len(config) != 2 {
-		return nil, nil
+		return []byte(`{}`), nil
 	}
 	var response struct {
 		Id   string `toml:"UUID"`
@@ -63,12 +68,12 @@ func (s *Servers) Create(n *p.Server) ([]byte, error) {
 	c := exec.Command("VBoxManage", "createvm", "--name", n.Name, "--register")
 	output, err := c.CombinedOutput()
 	if err != nil {
-		return nil, err
+		return output, err
 	}
 	re := regexp.MustCompile("([A-z0-9]{8}-[A-z0-9]{4}-[A-z0-9]{4}-[A-z0-9]{4}-[A-z0-9]{12})")
 	matches := re.FindAllString(string(output), -1)
 	if len(matches) < 1 {
-		return nil, err
+		return output, err
 	}
 	n.Id = matches[0]
 	b, err := json.Marshal(n)
@@ -80,6 +85,7 @@ func (s *Servers) Destroy(id string) (bool, error) {
 	c := exec.Command("VBoxManage", "unregistervm", id, "--delete")
 	output, err := c.CombinedOutput()
 	if err != nil {
+		print(string(output))
 		return false, err
 	}
 	if output != nil {
@@ -93,6 +99,7 @@ func (s *Servers) Start(id string) (bool, error) {
 	c := exec.Command("VBoxManage", "startvm", id, "--type", "headless")
 	output, err := c.CombinedOutput()
 	if err != nil {
+		print(string(output))
 		return false, err
 	}
 	if output != nil {
@@ -106,6 +113,7 @@ func (s *Servers) Reboot(id string) (bool, error) {
 	c := exec.Command("VBoxManage", "controlvm", id, "reset")
 	output, err := c.CombinedOutput()
 	if err != nil {
+		print(string(output))
 		return false, err
 	}
 	if output != nil {
@@ -119,6 +127,7 @@ func (s *Servers) Stop(id string) (bool, error) {
 	c := exec.Command("VBoxManage", "controlvm", id, "poweroff")
 	output, err := c.CombinedOutput()
 	if err != nil {
+		print(string(output))
 		return false, err
 	}
 	if output != nil {
