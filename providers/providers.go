@@ -33,7 +33,6 @@ type Server struct {
 	PrivateIps []string
 	Size       string
 	Image      string
-	Provider   string
 }
 
 type Images interface {
