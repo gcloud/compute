@@ -1,7 +1,11 @@
 GCloud - Compute
 ================
 
-[GCloud](http://gcloud.io) compute package for could services.
+[GCloud](http://gcloud.io), Go Packages for Cloud Services.
+
+Providers
+---------
+ - Virtual Box (vbox)
 
 API
 ---
