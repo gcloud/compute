@@ -11,16 +11,16 @@ import (
 type MockImages struct{}
 
 // List images available on the account.
-func (s *MockImages) List() ([]byte, error) {
+func (i *MockImages) List() ([]byte, error) {
 	return []byte(`[{"Name":"My Image","Id": "616fb98f-46ca-475e-917e-2563e5a8cd19"}]`), nil
 }
-func (s *MockImages) Show(id string) ([]byte, error) {
+func (i *MockImages) Show(id string) ([]byte, error) {
 	return []byte(`{"Name":"My Image","Id": "616fb98f-46ca-475e-917e-2563e5a8cd19"}`), nil
 }
-func (s *MockImages) Create(n *p.Image) ([]byte, error) {
+func (i *MockImages) Create(n *p.Image) ([]byte, error) {
 	return []byte(`{"Name":"My Image","Id": "616fb98f-46ca-475e-917e-2563e5a8cd19"}`), nil
 }
-func (s *MockImages) Destroy(id string) (bool, error) {
+func (i *MockImages) Destroy(id string) (bool, error) {
 	return true, nil
 }
 
@@ -93,8 +93,4 @@ func Test_ImagesDestroy(t *testing.T) {
 	if err != nil {
 		t.Error("Images Destroy failed with " + err.Error() + ".")
 	}
-}
-
-func Test_ImagesDistribute(t *testing.T) {
-	t.Error("ImagesDistribute failed.")
 }
