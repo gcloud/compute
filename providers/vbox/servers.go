@@ -12,6 +12,10 @@ import (
 	"strings"
 )
 
+func init() {
+	p.RegisterServers("vbox", &Servers{})
+}
+
 type Servers struct{}
 
 // List servers available on the account.
@@ -134,8 +138,4 @@ func (s *Servers) Stop(id string) (bool, error) {
 		return true, nil
 	}
 	return false, err
-}
-
-func init() {
-	p.RegisterServers("vbox", &Servers{})
 }

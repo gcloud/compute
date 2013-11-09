@@ -17,8 +17,8 @@ type Servers struct {
 
 // List servers available on the account.
 func (s *Servers) List() (*[]p.Server, error) {
-	p.Providers[s.Provider].Account = s.Account
-	result, err := p.Providers[s.Provider].Servers.List()
+	provider := p.GetProvider(s.Provider, s.Account)
+	result, err := provider.Servers.List()
 	if err != nil {
 		return nil, err
 	}
@@ -33,8 +33,8 @@ func (s *Servers) List() (*[]p.Server, error) {
 
 // Show server information for a given id.
 func (s *Servers) Show(id string) (*p.Server, error) {
-	p.Providers[s.Provider].Account = s.Account
-	result, err := p.Providers[s.Provider].Servers.Show(id)
+	provider := p.GetProvider(s.Provider, s.Account)
+	result, err := provider.Servers.Show(id)
 	if err != nil {
 		return nil, err
 	}
@@ -49,8 +49,8 @@ func (s *Servers) Show(id string) (*p.Server, error) {
 
 // Create a server.
 func (s *Servers) Create(n *p.Server) (*p.Server, error) {
-	p.Providers[s.Provider].Account = s.Account
-	result, err := p.Providers[s.Provider].Servers.Create(n)
+	provider := p.GetProvider(s.Provider, s.Account)
+	result, err := provider.Servers.Create(n)
 	if err != nil {
 		return nil, err
 	}
@@ -65,28 +65,28 @@ func (s *Servers) Create(n *p.Server) (*p.Server, error) {
 
 // Destroy a server.
 func (s *Servers) Destroy(id string) (bool, error) {
-	p.Providers[s.Provider].Account = s.Account
-	ok, err := p.Providers[s.Provider].Servers.Destroy(id)
+	provider := p.GetProvider(s.Provider, s.Account)
+	ok, err := provider.Servers.Destroy(id)
 	return ok, err
 }
 
 // Reboot a server.
 func (s *Servers) Reboot(id string) (bool, error) {
-	p.Providers[s.Provider].Account = s.Account
-	ok, err := p.Providers[s.Provider].Servers.Reboot(id)
+	provider := p.GetProvider(s.Provider, s.Account)
+	ok, err := provider.Servers.Reboot(id)
 	return ok, err
 }
 
 // Start a server that is stopped.
 func (s *Servers) Start(id string) (bool, error) {
-	p.Providers[s.Provider].Account = s.Account
-	ok, err := p.Providers[s.Provider].Servers.Start(id)
+	provider := p.GetProvider(s.Provider, s.Account)
+	ok, err := provider.Servers.Start(id)
 	return ok, err
 }
 
 // Stop a server that is running.
 func (s *Servers) Stop(id string) (bool, error) {
-	p.Providers[s.Provider].Account = s.Account
-	ok, err := p.Providers[s.Provider].Servers.Stop(id)
+	provider := p.GetProvider(s.Provider, s.Account)
+	ok, err := provider.Servers.Stop(id)
 	return ok, err
 }
