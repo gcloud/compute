@@ -3,19 +3,46 @@
 
 package compute
 
-import ()
+import (
+	"encoding/json"
+	p "github.com/gcloud/compute/providers"
+	"github.com/gcloud/identity"
+)
 
 // The locations provided by a compute service.
-type Locations struct{}
-
-type Location struct {
-	Id      string
-	Name    string
-	Country string
+type Locations struct {
+	Account  identity.Account
+	Provider string
 }
 
 // List available locations.
-func (s *Locations) List() {}
+func (l *Locations) List() (*[]p.Location, error) {
+	provider := p.GetProvider(l.Provider, l.Account)
+	result, err := provider.Locations.List()
+	if err != nil {
+		return nil, err
+	}
+	var records []p.Location
+	err = json.Unmarshal(result, &records)
+
+	if err != nil {
+		return nil, err
+	}
+	return &records, err
+}
 
 // Show location information for a given id.
-func (s *Locations) Show(id string) {}
+func (l *Locations) Show(id string) (*p.Location, error) {
+	provider := p.GetProvider(l.Provider, l.Account)
+	result, err := provider.Locations.Show(id)
+	if err != nil {
+		return nil, err
+	}
+	var record p.Location
+	err = json.Unmarshal(result, &record)
+
+	if err != nil {
+		return nil, err
+	}
+	return &record, err
+}
