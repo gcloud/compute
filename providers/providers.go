@@ -36,10 +36,15 @@ type Server struct {
 }
 
 type Images interface {
-	List() string
-	Show(string)
-	Create()
-	Destroy()
+	List() ([]byte, error)
+	Show(string) ([]byte, error)
+	Create(*Image) ([]byte, error)
+	Destroy(id string) (bool, error)
+}
+
+type Image struct {
+	Id   string
+	Name string
 }
 
 type Locations interface {
@@ -52,14 +57,52 @@ type Sizes interface {
 	Show(string)
 }
 
-var Providers = make(map[string]*Provider)
+var providers = make(map[string]*Provider)
+
+func GetProvider(name string, account identity.Account) *Provider {
+	if _, ok := providers[name]; !ok {
+		providers[name] = &Provider{}
+	}
+	providers[name].Account = account
+	return providers[name]
+}
 
 func RegisterServers(name string, servers Servers) {
 	if servers == nil {
-		panic("compute: Servers is nil.")
+		panic("compute: Images is nil.")
 	}
-	if _, ok := Providers[name]; !ok {
-		Providers[name] = &Provider{}
+	if _, ok := providers[name]; !ok {
+		providers[name] = &Provider{}
 	}
-	Providers[name].Servers = servers
+	providers[name].Servers = servers
+}
+
+func RegisterImages(name string, images Images) {
+	if images == nil {
+		panic("compute: Images is nil.")
+	}
+	if _, ok := providers[name]; !ok {
+		providers[name] = &Provider{}
+	}
+	providers[name].Images = images
+}
+
+func RegisterLocations(name string, locations Locations) {
+	if locations == nil {
+		panic("compute: Images is nil.")
+	}
+	if _, ok := providers[name]; !ok {
+		providers[name] = &Provider{}
+	}
+	providers[name].Locations = locations
+}
+
+func RegisterSizes(name string, sizes Sizes) {
+	if sizes == nil {
+		panic("compute: Images is nil.")
+	}
+	if _, ok := providers[name]; !ok {
+		providers[name] = &Provider{}
+	}
+	providers[name].Sizes = sizes
 }
