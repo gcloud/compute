@@ -48,13 +48,28 @@ type Image struct {
 }
 
 type Locations interface {
-	List() string
-	Show(string)
+	List() ([]byte, error)
+	Show(string) ([]byte, error)
+}
+
+type Location struct {
+	Id     string
+	Name   string
+	Region string
 }
 
 type Sizes interface {
-	List() string
-	Show(string)
+	List() ([]byte, error)
+	Show(string) ([]byte, error)
+}
+
+type Size struct {
+	Id        string
+	Name      string
+	Ram       string
+	Disk      string
+	Bandwidth string
+	Price     string
 }
 
 var providers = make(map[string]*Provider)
