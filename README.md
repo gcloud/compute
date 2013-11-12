@@ -39,4 +39,5 @@ API
 
 Development
 -----------
-	go get github.com/BurntSushi/toml
+	cd $GOPATH
+	go get github.com/gcloud/compute

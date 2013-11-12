@@ -5,7 +5,6 @@ package vbox
 
 import (
 	"encoding/json"
-	"github.com/BurntSushi/toml"
 	p "github.com/gcloud/compute/providers"
 	"os/exec"
 	"regexp"
@@ -56,14 +55,17 @@ func (s *Servers) Show(id string) ([]byte, error) {
 	if len(config) != 2 {
 		return []byte(`{}`), nil
 	}
-	var response struct {
-		Id   string `toml:"UUID"`
-		Name string `toml:"name"`
+	r := make(map[string]string, 0)
+	for _, s := range strings.Split(strings.TrimSpace(string(config[0])), "\n") {
+		v := strings.Split(s, "=")
+		if len(v) > 0 {
+			r[v[0]] = v[1]
+		}
 	}
-	if _, err := toml.Decode(config[0], &response); err != nil {
-		return nil, err
-	}
-	b, err := json.Marshal(response)
+	b, err := json.Marshal(map[string]interface{}{
+		"Id":   r["UUID"],
+		"Name": r["name"],
+	})
 	return b, err
 }
 
