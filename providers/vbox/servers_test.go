@@ -5,8 +5,9 @@ package vbox
 
 import (
 	"encoding/json"
-	p "github.com/gcloud/compute/providers"
 	"testing"
+
+	p "github.com/gcloud/compute/providers"
 )
 
 var ServerName = "GCloudServer"

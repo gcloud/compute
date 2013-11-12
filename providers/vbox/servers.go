@@ -5,10 +5,11 @@ package vbox
 
 import (
 	"encoding/json"
-	p "github.com/gcloud/compute/providers"
 	"os/exec"
 	"regexp"
 	"strings"
+
+	p "github.com/gcloud/compute/providers"
 )
 
 func init() {
