@@ -9,11 +9,11 @@ import (
 	"testing"
 )
 
-var name = "My Server"
+var ServerName = "GCloudServer"
 
 func Test_ServersCreate(t *testing.T) {
 	servers := &Servers{}
-	result, err := servers.Create(&p.Server{Name: name})
+	result, err := servers.Create(&p.Server{Name: ServerName})
 	if err != nil {
 		t.Error("Servers Create failed with " + err.Error() + ".")
 	}
@@ -60,7 +60,7 @@ func Test_ServersList(t *testing.T) {
 
 func Test_ServersShow(t *testing.T) {
 	servers := &Servers{}
-	result, err := servers.Show(name)
+	result, err := servers.Show(ServerName)
 	if err != nil {
 		t.Error("Servers Show failed with " + err.Error() + ".")
 	}
@@ -82,7 +82,7 @@ func Test_ServersShow(t *testing.T) {
 
 func Test_ServersStart(t *testing.T) {
 	servers := &Servers{}
-	ok, err := servers.Start(name)
+	ok, err := servers.Start(ServerName)
 	if !ok {
 		t.Error("Servers Start failed.")
 	}
@@ -93,7 +93,7 @@ func Test_ServersStart(t *testing.T) {
 
 func Test_ServersReboot(t *testing.T) {
 	servers := &Servers{}
-	ok, err := servers.Reboot(name)
+	ok, err := servers.Reboot(ServerName)
 	if !ok {
 		t.Error("Servers Reboot failed.")
 	}
@@ -104,7 +104,7 @@ func Test_ServersReboot(t *testing.T) {
 
 func Test_ServersStop(t *testing.T) {
 	servers := &Servers{}
-	ok, err := servers.Stop(name)
+	ok, err := servers.Stop(ServerName)
 	if !ok {
 		t.Error("Servers Stop failed.")
 	}
@@ -115,7 +115,7 @@ func Test_ServersStop(t *testing.T) {
 
 func Test_ServersDestroy(t *testing.T) {
 	servers := &Servers{}
-	ok, err := servers.Destroy(name)
+	ok, err := servers.Destroy(ServerName)
 	if !ok {
 		t.Error("Servers Destroy failed.")
 	}
