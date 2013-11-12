@@ -43,8 +43,9 @@ type Images interface {
 }
 
 type Image struct {
-	Id   string
-	Name string
+	Id     string
+	Name   string
+	Source string
 }
 
 type Locations interface {
