@@ -5,13 +5,14 @@ package compute
 
 import (
 	"encoding/json"
+
 	p "github.com/gcloud/compute/providers"
 	"github.com/gcloud/identity"
 )
 
 // The sizes offered by the compute service.
 type Sizes struct {
-	Account  identity.Account
+	Account  *identity.Account
 	Provider string
 }
 

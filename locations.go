@@ -5,13 +5,14 @@ package compute
 
 import (
 	"encoding/json"
+
 	p "github.com/gcloud/compute/providers"
 	"github.com/gcloud/identity"
 )
 
 // The locations provided by a compute service.
 type Locations struct {
-	Account  identity.Account
+	Account  *identity.Account
 	Provider string
 }
 

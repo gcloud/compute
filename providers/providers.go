@@ -8,7 +8,7 @@ import (
 )
 
 type Provider struct {
-	Account   identity.Account
+	Account   *identity.Account
 	Servers   Servers
 	Images    Images
 	Locations Locations
@@ -75,50 +75,28 @@ type Size struct {
 
 var providers = make(map[string]*Provider)
 
-func GetProvider(name string, account identity.Account) *Provider {
+func GetProvider(name string, account *identity.Account) *Provider {
 	if _, ok := providers[name]; !ok {
 		providers[name] = &Provider{}
 	}
-	providers[name].Account = account
+	if account != nil {
+		providers[name].Account = account
+	}
 	return providers[name]
 }
 
 func RegisterServers(name string, servers Servers) {
-	if servers == nil {
-		panic("compute: Images is nil.")
-	}
-	if _, ok := providers[name]; !ok {
-		providers[name] = &Provider{}
-	}
-	providers[name].Servers = servers
+	GetProvider(name, nil).Servers = servers
 }
 
 func RegisterImages(name string, images Images) {
-	if images == nil {
-		panic("compute: Images is nil.")
-	}
-	if _, ok := providers[name]; !ok {
-		providers[name] = &Provider{}
-	}
-	providers[name].Images = images
+	GetProvider(name, nil).Images = images
 }
 
 func RegisterLocations(name string, locations Locations) {
-	if locations == nil {
-		panic("compute: Images is nil.")
-	}
-	if _, ok := providers[name]; !ok {
-		providers[name] = &Provider{}
-	}
-	providers[name].Locations = locations
+	GetProvider(name, nil).Locations = locations
 }
 
 func RegisterSizes(name string, sizes Sizes) {
-	if sizes == nil {
-		panic("compute: Images is nil.")
-	}
-	if _, ok := providers[name]; !ok {
-		providers[name] = &Provider{}
-	}
-	providers[name].Sizes = sizes
+	GetProvider(name, nil).Sizes = sizes
 }
