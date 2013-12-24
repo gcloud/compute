@@ -8,7 +8,6 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
-	"github.com/gcloud/identity"
 	"io"
 	"os"
 	"os/exec"
@@ -26,7 +25,6 @@ func init() {
 
 // The images available from the compute service.
 type Images struct {
-	identity.Account
 	Path string
 }
 

@@ -22,7 +22,7 @@ func (s *MockSizes) Show(id string) ([]byte, error) {
 }
 
 func Test_GetProvider(t *testing.T) {
-	p := GetProvider(ProviderName, identity.Account{Key: "test"})
+	p := GetProvider(ProviderName, &identity.Account{Key: "test"})
 	expected := "test"
 	result := p.Account.Key
 	if expected != result {
@@ -32,7 +32,7 @@ func Test_GetProvider(t *testing.T) {
 
 func Test_RegisterSizes(t *testing.T) {
 	RegisterSizes(ProviderName, &MockSizes{})
-	p := GetProvider(ProviderName, identity.Account{})
+	p := GetProvider(ProviderName, &identity.Account{})
 	r, err := p.Sizes.Show("1")
 	if err != nil {
 		t.Error("Error in Register Sizes.")

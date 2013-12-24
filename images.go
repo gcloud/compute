@@ -5,13 +5,14 @@ package compute
 
 import (
 	"encoding/json"
+
 	p "github.com/gcloud/compute/providers"
 	"github.com/gcloud/identity"
 )
 
 // The images available from the compute service.
 type Images struct {
-	Account  identity.Account
+	Account  *identity.Account
 	Provider string
 }
 

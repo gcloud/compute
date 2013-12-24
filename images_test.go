@@ -4,8 +4,9 @@
 package compute
 
 import (
-	p "github.com/gcloud/compute/providers"
 	"testing"
+
+	p "github.com/gcloud/compute/providers"
 )
 
 type MockImages struct{}
