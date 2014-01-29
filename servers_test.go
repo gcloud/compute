@@ -4,22 +4,62 @@
 package compute
 
 import (
+	"encoding/json"
 	"testing"
 
-	p "github.com/gcloud/compute/providers"
+	p "github.com/gcloud/providers"
 )
+
+type MockServer struct {
+	id   string
+	name string
+}
+
+func (m *MockServer) Id() string {
+	return m.id
+}
+func (m *MockServer) Name() string {
+	return m.name
+}
+func (m *MockServer) State() string {
+	return "running"
+}
+func (m *MockServer) Ips(t string) []string {
+	return []string{}
+}
+func (m *MockServer) Size() string {
+	return ""
+}
+func (m *MockServer) Image() string {
+	return ""
+}
+func (m *MockServer) String() string {
+	b, _ := m.MarshalJSON()
+	return string(b)
+}
+func (m *MockServer) MarshalJSON() ([]byte, error) {
+	return json.Marshal(p.Map{
+		"id": m.Id(), "name": m.Name(),
+	})
+}
 
 type MockServers struct{}
 
-// List servers available on the account.
-func (s *MockServers) List() ([]byte, error) {
-	return []byte(`[{"Name":"My Server","Id": "616fb98f-46ca-475e-917e-2563e5a8cd19"}]`), nil
+func (s *MockServers) NewServer(m p.Map) p.Server {
+	return &MockServer{name: "My Server", id: "616fb98f-46ca-475e-917e-2563e5a8cd19"}
 }
-func (s *MockServers) Show(id string) ([]byte, error) {
-	return []byte(`{"Name":"My Server","Id": "616fb98f-46ca-475e-917e-2563e5a8cd19"}`), nil
+func (s *MockServers) List() ([]p.Server, error) {
+	results := make([]p.Server, 0)
+	r := s.NewServer(nil)
+	return append(results, r), nil
 }
-func (s *MockServers) Create(n *p.Server) ([]byte, error) {
-	return []byte(`{"Name":"My Server","Id": "616fb98f-46ca-475e-917e-2563e5a8cd19"}`), nil
+func (s *MockServers) Show(id string) (p.Server, error) {
+	r := s.NewServer(nil)
+	return r, nil
+}
+func (s *MockServers) Create(n interface{}) (p.Server, error) {
+	r := s.NewServer(nil)
+	return r, nil
 }
 func (s *MockServers) Destroy(id string) (bool, error) {
 	return true, nil
@@ -47,11 +87,11 @@ func Test_ServersList(t *testing.T) {
 	if results == nil {
 		t.Error("Results should not be nil.")
 	}
-	for _, v := range *results {
-		if v.Id != "616fb98f-46ca-475e-917e-2563e5a8cd19" {
+	for _, v := range results {
+		if v.Id() != "616fb98f-46ca-475e-917e-2563e5a8cd19" {
 			t.Error("Wrong value for Id.")
 		}
-		if v.Name != "My Server" {
+		if v.Name() != "My Server" {
 			t.Error("Wrong value for Name.")
 		}
 	}
@@ -66,32 +106,31 @@ func Test_ServersShow(t *testing.T) {
 	if result == nil {
 		t.Error("Results should not be nil.")
 	}
-	r := *result
-	if r.Id != "616fb98f-46ca-475e-917e-2563e5a8cd19" {
+	r := result
+	if r.Id() != "616fb98f-46ca-475e-917e-2563e5a8cd19" {
 		t.Error("Wrong value for Id.")
 	}
-	if r.Name != "My Server" {
+	if r.Name() != "My Server" {
 		t.Error("Wrong value for Name.")
 	}
 }
 
 func Test_ServersCreate(t *testing.T) {
 	servers := &Servers{Provider: "mock"}
-	result, err := servers.Create(&p.Server{
-		Name:  "My Server",
-		Image: "70a599e0-31e7-49b7-b260-868f441e862b",
-		Size:  "1"})
+	result, err := servers.Create(map[string]interface{}{
+		"name": "My Server",
+	})
 	if err != nil {
 		t.Error("Servers Create failed with " + err.Error() + ".")
 	}
 	if result == nil {
 		t.Error("Results should not be nil.")
 	}
-	r := *result
-	if r.Id != "616fb98f-46ca-475e-917e-2563e5a8cd19" {
+	r := result
+	if r.Id() != "616fb98f-46ca-475e-917e-2563e5a8cd19" {
 		t.Error("Wrong value for Id.")
 	}
-	if r.Name != "My Server" {
+	if r.Name() != "My Server" {
 		t.Error("Wrong value for Name.")
 	}
 }
