@@ -6,20 +6,38 @@ package compute
 import (
 	"testing"
 
-	p "github.com/gcloud/compute/providers"
+	p "github.com/gcloud/providers"
 )
+
+type MockImage struct {
+	id   string
+	name string
+}
+
+func (m *MockImage) Id() string {
+	return m.id
+}
+func (m *MockImage) Name() string {
+	return m.name
+}
+func (m *MockImage) File() string {
+	return "file"
+}
 
 type MockImages struct{}
 
-// List images available on the account.
-func (i *MockImages) List() ([]byte, error) {
-	return []byte(`[{"Name":"My Image","Id": "616fb98f-46ca-475e-917e-2563e5a8cd19"}]`), nil
+func (i *MockImages) List() ([]p.Image, error) {
+	results := make([]p.Image, 0)
+	r := &MockImage{name: "My Image", id: "616fb98f-46ca-475e-917e-2563e5a8cd19"}
+	return append(results, r), nil
 }
-func (i *MockImages) Show(id string) ([]byte, error) {
-	return []byte(`{"Name":"My Image","Id": "616fb98f-46ca-475e-917e-2563e5a8cd19"}`), nil
+func (i *MockImages) Show(id string) (p.Image, error) {
+	r := &MockImage{name: "My Image", id: "616fb98f-46ca-475e-917e-2563e5a8cd19"}
+	return r, nil
 }
-func (i *MockImages) Create(n *p.Image) ([]byte, error) {
-	return []byte(`{"Name":"My Image","Id": "616fb98f-46ca-475e-917e-2563e5a8cd19"}`), nil
+func (i *MockImages) Create(n interface{}) (p.Image, error) {
+	r := &MockImage{name: "My Image", id: "616fb98f-46ca-475e-917e-2563e5a8cd19"}
+	return r, nil
 }
 func (i *MockImages) Destroy(id string) (bool, error) {
 	return true, nil
@@ -38,11 +56,11 @@ func Test_ImagesList(t *testing.T) {
 	if results == nil {
 		t.Error("Results should not be nil.")
 	}
-	for _, v := range *results {
-		if v.Id != "616fb98f-46ca-475e-917e-2563e5a8cd19" {
+	for _, v := range results {
+		if v.Id() != "616fb98f-46ca-475e-917e-2563e5a8cd19" {
 			t.Error("Wrong value for Id.")
 		}
-		if v.Name != "My Image" {
+		if v.Name() != "My Image" {
 			t.Error("Wrong value for Name.")
 		}
 	}
@@ -57,30 +75,29 @@ func Test_ImagesShow(t *testing.T) {
 	if result == nil {
 		t.Error("Results should not be nil.")
 	}
-	r := *result
-	if r.Id != "616fb98f-46ca-475e-917e-2563e5a8cd19" {
+	r := result
+	if r.Id() != "616fb98f-46ca-475e-917e-2563e5a8cd19" {
 		t.Error("Wrong value for Id.")
 	}
-	if r.Name != "My Image" {
+	if r.Name() != "My Image" {
 		t.Error("Wrong value for Name.")
 	}
 }
 
 func Test_ImagesCreate(t *testing.T) {
 	images := &Images{Provider: "mock"}
-	result, err := images.Create(&p.Image{
-		Name: "My Image"})
+	result, err := images.Create(MockImage{name: "My Image"})
 	if err != nil {
 		t.Error("Images Create failed with " + err.Error() + ".")
 	}
 	if result == nil {
 		t.Error("Results should not be nil.")
 	}
-	r := *result
-	if r.Id != "616fb98f-46ca-475e-917e-2563e5a8cd19" {
+	r := result
+	if r.Id() != "616fb98f-46ca-475e-917e-2563e5a8cd19" {
 		t.Error("Wrong value for Id.")
 	}
-	if r.Name != "My Image" {
+	if r.Name() != "My Image" {
 		t.Error("Wrong value for Name.")
 	}
 }

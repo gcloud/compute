@@ -4,10 +4,8 @@
 package compute
 
 import (
-	"encoding/json"
-
-	p "github.com/gcloud/compute/providers"
 	"github.com/gcloud/identity"
+	p "github.com/gcloud/providers"
 )
 
 // The images available from the compute service.
@@ -17,56 +15,25 @@ type Images struct {
 }
 
 // List images available on the account.
-func (i *Images) List() (*[]p.Image, error) {
+func (i *Images) List() ([]p.Image, error) {
 	provider := p.GetProvider(i.Provider, i.Account)
-	result, err := provider.Images.List()
-	if err != nil {
-		return nil, err
-	}
-	var records []p.Image
-	err = json.Unmarshal(result, &records)
-
-	if err != nil {
-		return nil, err
-	}
-	return &records, err
+	return provider.Images.List()
 }
 
 // Show image information for a given id.
-func (i *Images) Show(id string) (*p.Image, error) {
+func (i *Images) Show(id string) (p.Image, error) {
 	provider := p.GetProvider(i.Provider, i.Account)
-	result, err := provider.Images.Show(id)
-	if err != nil {
-		return nil, err
-	}
-	var record p.Image
-	err = json.Unmarshal(result, &record)
-
-	if err != nil {
-		return nil, err
-	}
-	return &record, err
+	return provider.Images.Show(id)
 }
 
 // Create a image.
-func (i *Images) Create(n *p.Image) (*p.Image, error) {
+func (i *Images) Create(n interface{}) (p.Image, error) {
 	provider := p.GetProvider(i.Provider, i.Account)
-	result, err := provider.Images.Create(n)
-	if err != nil {
-		return nil, err
-	}
-	var record p.Image
-	err = json.Unmarshal(result, &record)
-
-	if err != nil {
-		return nil, err
-	}
-	return &record, err
+	return provider.Images.Create(n)
 }
 
 // Destroy a image.
 func (i *Images) Destroy(id string) (bool, error) {
 	provider := p.GetProvider(i.Provider, i.Account)
-	ok, err := provider.Images.Destroy(id)
-	return ok, err
+	return provider.Images.Destroy(id)
 }
