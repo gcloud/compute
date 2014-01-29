@@ -6,8 +6,8 @@ package compute
 import (
 	"encoding/json"
 
-	p "github.com/gcloud/compute/providers"
 	"github.com/gcloud/identity"
+	p "github.com/gcloud/providers"
 )
 
 // The sizes offered by the compute service.
