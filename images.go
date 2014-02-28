@@ -16,24 +16,28 @@ type Images struct {
 
 // List images available on the account.
 func (i *Images) List() ([]p.Image, error) {
-	provider := p.GetProvider(i.Provider, i.Account)
+	provider := p.GetProvider(i.Provider)
+	provider.SetAccount(i.Account)
 	return provider.Images.List()
 }
 
 // Show image information for a given id.
 func (i *Images) Show(id string) (p.Image, error) {
-	provider := p.GetProvider(i.Provider, i.Account)
+	provider := p.GetProvider(i.Provider)
+	provider.SetAccount(i.Account)
 	return provider.Images.Show(id)
 }
 
 // Create a image.
 func (i *Images) Create(n interface{}) (p.Image, error) {
-	provider := p.GetProvider(i.Provider, i.Account)
+	provider := p.GetProvider(i.Provider)
+	provider.SetAccount(i.Account)
 	return provider.Images.Create(n)
 }
 
 // Destroy a image.
 func (i *Images) Destroy(id string) (bool, error) {
-	provider := p.GetProvider(i.Provider, i.Account)
+	provider := p.GetProvider(i.Provider)
+	provider.SetAccount(i.Account)
 	return provider.Images.Destroy(id)
 }

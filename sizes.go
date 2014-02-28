@@ -4,8 +4,6 @@
 package compute
 
 import (
-	"encoding/json"
-
 	"github.com/gcloud/identity"
 	p "github.com/gcloud/providers"
 )
@@ -17,33 +15,15 @@ type Sizes struct {
 }
 
 // List available sizes.
-func (s *Sizes) List() (*[]p.Size, error) {
-	provider := p.GetProvider(s.Provider, s.Account)
-	result, err := provider.Sizes.List()
-	if err != nil {
-		return nil, err
-	}
-	var records []p.Size
-	err = json.Unmarshal(result, &records)
-
-	if err != nil {
-		return nil, err
-	}
-	return &records, err
+func (s *Sizes) List() ([]p.Size, error) {
+	provider := p.GetProvider(s.Provider)
+	provider.SetAccount(s.Account)
+	return provider.Sizes.List()
 }
 
 // Show size information for a given id.
-func (s *Sizes) Show(id string) (*p.Size, error) {
-	provider := p.GetProvider(s.Provider, s.Account)
-	result, err := provider.Sizes.Show(id)
-	if err != nil {
-		return nil, err
-	}
-	var record p.Size
-	err = json.Unmarshal(result, &record)
-
-	if err != nil {
-		return nil, err
-	}
-	return &record, err
+func (s *Sizes) Show(id string) (p.Size, error) {
+	provider := p.GetProvider(s.Provider)
+	provider.SetAccount(s.Account)
+	return provider.Sizes.Show(id)
 }

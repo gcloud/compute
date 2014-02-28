@@ -4,8 +4,6 @@
 package compute
 
 import (
-	"encoding/json"
-
 	"github.com/gcloud/identity"
 	p "github.com/gcloud/providers"
 )
@@ -17,33 +15,15 @@ type Locations struct {
 }
 
 // List available locations.
-func (l *Locations) List() (*[]p.Location, error) {
-	provider := p.GetProvider(l.Provider, l.Account)
-	result, err := provider.Locations.List()
-	if err != nil {
-		return nil, err
-	}
-	var records []p.Location
-	err = json.Unmarshal(result, &records)
-
-	if err != nil {
-		return nil, err
-	}
-	return &records, err
+func (l *Locations) List() ([]p.Location, error) {
+	provider := p.GetProvider(l.Provider)
+	provider.SetAccount(l.Account)
+	return provider.Locations.List()
 }
 
 // Show location information for a given id.
-func (l *Locations) Show(id string) (*p.Location, error) {
-	provider := p.GetProvider(l.Provider, l.Account)
-	result, err := provider.Locations.Show(id)
-	if err != nil {
-		return nil, err
-	}
-	var record p.Location
-	err = json.Unmarshal(result, &record)
-
-	if err != nil {
-		return nil, err
-	}
-	return &record, err
+func (l *Locations) Show(id string) (p.Location, error) {
+	provider := p.GetProvider(l.Provider)
+	provider.SetAccount(l.Account)
+	return provider.Locations.Show(id)
 }
