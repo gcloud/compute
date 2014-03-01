@@ -4,11 +4,6 @@ GCloud - Compute
 [GCloud](http://gcloud.io), Go Packages for Cloud Services.
 [![Build Status](https://travis-ci.org/gcloud/compute.png)](https://travis-ci.org/gcloud/compute)
 
-
-Providers
----------
- - Virtual Box (vbox)
-
 API
 ---
 
