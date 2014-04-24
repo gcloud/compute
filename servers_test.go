@@ -7,7 +7,7 @@ import (
 	"encoding/json"
 	"testing"
 
-	p "github.com/gcloud/providers"
+	p "github.com/gcloud/compute/providers"
 )
 
 type MockServer struct {

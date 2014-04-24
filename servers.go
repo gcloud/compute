@@ -4,8 +4,8 @@
 package compute
 
 import (
+	p "github.com/gcloud/compute/providers"
 	"github.com/gcloud/identity"
-	p "github.com/gcloud/providers"
 )
 
 // The Servers type interacts with Compute services.

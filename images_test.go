@@ -6,7 +6,7 @@ package compute
 import (
 	"testing"
 
-	p "github.com/gcloud/providers"
+	p "github.com/gcloud/compute/providers"
 )
 
 type MockImage struct {
