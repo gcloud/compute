@@ -19,6 +19,7 @@ var name = "digitalocean"
 
 func init() {
 	provider := p.GetProvider(name)
+	provider.Endpoint = "https://api.digitalocean.com"
 	p.RegisterServers(name, &Servers{provider: provider})
 }
 
