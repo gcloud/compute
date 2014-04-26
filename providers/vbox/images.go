@@ -16,11 +16,12 @@ import (
 	"regexp"
 	"strings"
 
-	p "github.com/gcloud/compute/providers"
+	"github.com/gcloud/compute"
+	"github.com/mitchellh/mapstructure"
 )
 
 func init() {
-	p.RegisterImages("vbox", &Images{})
+	compute.RegisterImages("vbox", &Images{})
 }
 
 type Image struct {
@@ -35,35 +36,42 @@ func (i *Image) Id() string {
 func (i *Image) Name() string {
 	return i.name
 }
-func (i *Image) File() string {
+func (i *Image) Path() string {
 	return i.file
 }
-
 func (i *Image) String() string {
-	b, err := json.Marshal(p.Map{
-		"id": i.id, "name": i.name,
-	})
+	b, err := i.MarshalJSON()
 	if err != nil {
 		return ""
 	}
 	return string(b)
+}
+func (i *Image) MarshalJSON() ([]byte, error) {
+	return json.Marshal(compute.Map{
+		"id": i.id, "name": i.name,
+	})
 }
 
 type Images struct {
 	Path string
 }
 
-func NewImages() *Images {
-	return &Images{}
+func (i *Images) New(m compute.Map) compute.Image {
+	var image *Image
+	err := mapstructure.Decode(m, &image)
+	if err != nil {
+		return nil
+	}
+	return image
 }
 
 // List images available to the account.
-func (i *Images) List() ([]p.Image, error) {
+func (i *Images) List() ([]compute.Image, error) {
 	results, err := filepath.Glob(fmt.Sprintf("%s/*.ovf", i.path()))
 	if err != nil {
 		return nil, err
 	}
-	responses := make([]p.Image, 0)
+	responses := make([]compute.Image, 0)
 	for _, r := range results {
 		id, err := i.id(r)
 		if err != nil {
@@ -79,18 +87,17 @@ func (i *Images) List() ([]p.Image, error) {
 }
 
 // Show image information for a given id.
-func (i *Images) Show(name string) (p.Image, error) {
-	file := fmt.Sprintf("%s/%s.ovf", i.path(), name)
+func (i *Images) Show(image compute.Image) (compute.Image, error) {
+	file := fmt.Sprintf("%s/%s.ovf", i.path(), image.Name())
 	id, err := i.id(file)
 	if err != nil {
 		return nil, err
 	}
-	return &Image{id, name, file}, nil
+	return &Image{id, image.Name(), file}, nil
 }
 
 // Create an image.
-func (i *Images) Create(n interface{}) (p.Image, error) {
-	image := n.(p.Image)
+func (i *Images) Create(image compute.Image) (compute.Image, error) {
 	file := fmt.Sprintf("%s/%s.ovf", i.path(), image.Name())
 	c := exec.Command("VBoxManage", "export", image.Name(), "--output", file)
 	output, err := c.CombinedOutput()
@@ -108,8 +115,8 @@ func (i *Images) Create(n interface{}) (p.Image, error) {
 }
 
 // Destroy an image.
-func (i *Images) Destroy(name string) (bool, error) {
-	file := fmt.Sprintf("%s/%s.ovf", i.path(), name)
+func (i *Images) Destroy(image compute.Image) (bool, error) {
+	file := fmt.Sprintf("%s/%s.ovf", i.path(), image.Name())
 	err := os.Remove(file)
 	if err != nil {
 		return false, err

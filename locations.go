@@ -4,26 +4,26 @@
 package compute
 
 import (
-	p "github.com/gcloud/compute/providers"
-	"github.com/gcloud/identity"
+	i "github.com/gcloud/identity"
 )
 
-// The locations provided by a compute service.
-type Locations struct {
-	Account  *identity.Account
-	Provider string
+type Locations interface {
+	List() ([]Location, error)
+	Show(string) (Location, error)
 }
 
-// List available locations.
-func (l *Locations) List() ([]p.Location, error) {
-	provider := p.GetProvider(l.Provider)
-	provider.SetAccount(l.Account)
-	return provider.Locations.List()
+type Location interface {
+	Id() string
+	Name() string
+	Region() string
 }
 
-// Show location information for a given id.
-func (l *Locations) Show(id string) (p.Location, error) {
-	provider := p.GetProvider(l.Provider)
-	provider.SetAccount(l.Account)
-	return provider.Locations.Show(id)
+func RegisterLocations(name string, locations Locations) {
+	GetProvider(name).Locations = locations
+}
+
+func GetLocations(provider string, account *i.Account) Locations {
+	Provider := GetProvider(provider)
+	Provider.SetAccount(account)
+	return Provider.Locations
 }

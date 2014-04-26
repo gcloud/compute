@@ -4,70 +4,37 @@
 package compute
 
 import (
-	p "github.com/gcloud/compute/providers"
-	"github.com/gcloud/identity"
+	i "github.com/gcloud/identity"
 )
 
-// The Servers type interacts with Compute services.
-type Servers struct {
-	Account  *identity.Account
-	Provider string
+type Servers interface {
+	New(Map) Server
+	List() ([]Server, error)
+	Show(Server) (Server, error)
+	Create(Server) (Server, error)
+	Destroy(Server) (bool, error)
+	Reboot(Server) (bool, error)
+	Start(Server) (bool, error)
+	Stop(Server) (bool, error)
 }
 
-func (s *Servers) NewServer(m p.Map) p.Server {
-	provider := p.GetProvider(s.Provider)
-	return provider.Servers.NewServer(m)
+type Server interface {
+	Id() string
+	Name() string
+	State() string
+	Ips(string) []string
+	Size() string
+	Image() string
+	String() string
+	MarshalJSON() ([]byte, error)
 }
 
-// List servers available on the account.
-func (s *Servers) List() ([]p.Server, error) {
-	provider := p.GetProvider(s.Provider)
-	provider.SetAccount(s.Account)
-	return provider.Servers.List()
+func RegisterServers(provider string, servers Servers) {
+	GetProvider(provider).Servers = servers
 }
 
-// Show server information for a given id.
-func (s *Servers) Show(id string) (p.Server, error) {
-	provider := p.GetProvider(s.Provider)
-	provider.SetAccount(s.Account)
-	return provider.Servers.Show(id)
-}
-
-// Create a server.
-func (s *Servers) Create(n interface{}) (p.Server, error) {
-	provider := p.GetProvider(s.Provider)
-	provider.SetAccount(s.Account)
-	return provider.Servers.Create(n)
-}
-
-// Destroy a server.
-func (s *Servers) Destroy(id string) (bool, error) {
-	provider := p.GetProvider(s.Provider)
-	provider.SetAccount(s.Account)
-	ok, err := provider.Servers.Destroy(id)
-	return ok, err
-}
-
-// Reboot a server.
-func (s *Servers) Reboot(id string) (bool, error) {
-	provider := p.GetProvider(s.Provider)
-	provider.SetAccount(s.Account)
-	ok, err := provider.Servers.Reboot(id)
-	return ok, err
-}
-
-// Start a server that is stopped.
-func (s *Servers) Start(id string) (bool, error) {
-	provider := p.GetProvider(s.Provider)
-	provider.SetAccount(s.Account)
-	ok, err := provider.Servers.Start(id)
-	return ok, err
-}
-
-// Stop a server that is running.
-func (s *Servers) Stop(id string) (bool, error) {
-	provider := p.GetProvider(s.Provider)
-	provider.SetAccount(s.Account)
-	ok, err := provider.Servers.Stop(id)
-	return ok, err
+func GetServers(provider string, account *i.Account) Servers {
+	Provider := GetProvider(provider)
+	Provider.SetAccount(account)
+	return Provider.Servers
 }

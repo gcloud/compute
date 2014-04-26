@@ -1,7 +1,7 @@
 // GCloud - Go Packages for Cloud Services.
 // Copyright (c) 2013 Garrett Woodworth (https://github.com/gwoo).
 
-package providers
+package compute
 
 import (
 	"testing"
@@ -11,27 +11,27 @@ import (
 
 var ProviderName = "MockProvider"
 
-type MockSize struct {
+type MockThing struct {
 	id   string
 	name string
 }
 
-func (m *MockSize) Id() string {
+func (m *MockThing) Id() string {
 	return m.id
 }
-func (m *MockSize) Name() string {
+func (m *MockThing) Name() string {
 	return m.name
 }
 
-type MockSizes struct{}
+type MockThings struct{}
 
-func (s *MockSizes) List() ([]Size, error) {
+func (s *MockThings) List() ([]Size, error) {
 	return []Size{
-		&MockSize{name: "The Size", id: "616fb98f-46ca-475e-917e-2563e5a8cd19"},
+		&MockThing{name: "The Size", id: "616fb98f-46ca-475e-917e-2563e5a8cd19"},
 	}, nil
 }
-func (s *MockSizes) Show(id string) (Size, error) {
-	return &MockSize{name: "The Size", id: "616fb98f-46ca-475e-917e-2563e5a8cd19"}, nil
+func (s *MockThings) Show(id string) (Size, error) {
+	return &MockThing{name: "The Size", id: "616fb98f-46ca-475e-917e-2563e5a8cd19"}, nil
 }
 
 func Test_GetProviderSetAccount(t *testing.T) {

@@ -4,26 +4,25 @@
 package compute
 
 import (
-	p "github.com/gcloud/compute/providers"
-	"github.com/gcloud/identity"
+	i "github.com/gcloud/identity"
 )
 
-// The sizes offered by the compute service.
-type Sizes struct {
-	Account  *identity.Account
-	Provider string
+type Sizes interface {
+	List() ([]Size, error)
+	Show(string) (Size, error)
 }
 
-// List available sizes.
-func (s *Sizes) List() ([]p.Size, error) {
-	provider := p.GetProvider(s.Provider)
-	provider.SetAccount(s.Account)
-	return provider.Sizes.List()
+type Size interface {
+	Id() string
+	Name() string
 }
 
-// Show size information for a given id.
-func (s *Sizes) Show(id string) (p.Size, error) {
-	provider := p.GetProvider(s.Provider)
-	provider.SetAccount(s.Account)
-	return provider.Sizes.Show(id)
+func RegisterSizes(name string, sizes Sizes) {
+	GetProvider(name).Sizes = sizes
+}
+
+func GetSizes(provider string, account *i.Account) Sizes {
+	Provider := GetProvider(provider)
+	Provider.SetAccount(account)
+	return Provider.Sizes
 }

@@ -9,12 +9,12 @@ import (
 	"regexp"
 	"strings"
 
-	p "github.com/gcloud/compute/providers"
+	"github.com/gcloud/compute"
 	"github.com/mitchellh/mapstructure"
 )
 
 func init() {
-	p.RegisterServers("vbox", &Servers{})
+	compute.RegisterServers("vbox", &Servers{})
 }
 
 type Server struct {
@@ -49,14 +49,14 @@ func (s *Server) String() string {
 	return string(b)
 }
 func (s *Server) MarshalJSON() ([]byte, error) {
-	return json.Marshal(p.Map{
+	return json.Marshal(compute.Map{
 		"id": s.Id(), "name": s.Name(),
 	})
 }
 
 type Servers struct{}
 
-func (s *Servers) NewServer(m p.Map) p.Server {
+func (s *Servers) New(m compute.Map) compute.Server {
 	var server *Server
 	err := mapstructure.Decode(m, &server)
 	if err != nil {
@@ -66,8 +66,8 @@ func (s *Servers) NewServer(m p.Map) p.Server {
 }
 
 // List servers available on the account.
-func (s *Servers) List() ([]p.Server, error) {
-	var r []p.Server
+func (s *Servers) List() ([]compute.Server, error) {
+	var r []compute.Server
 	c := exec.Command("VBoxManage", "list", "vms")
 	output, err := c.CombinedOutput()
 	if err != nil {
@@ -81,7 +81,7 @@ func (s *Servers) List() ([]p.Server, error) {
 	replacer := strings.NewReplacer("\r", "")
 	results := strings.Split(strings.Trim(replacer.Replace(string(output)), "\n"), "\n")
 	re := regexp.MustCompile("(?P<name>[A-z -]+)(?P<id>[A-z0-9-]+)")
-	responses := make([]p.Server, 0)
+	responses := make([]compute.Server, 0)
 	for _, v := range results {
 		matches := re.FindAllString(v, -1)
 		if len(matches) < 2 {
@@ -96,9 +96,9 @@ func (s *Servers) List() ([]p.Server, error) {
 }
 
 // Show server information for a given id.
-func (s *Servers) Show(id string) (p.Server, error) {
-	var r p.Server
-	c := exec.Command("VBoxManage", "showvminfo", id, "--machinereadable")
+func (s *Servers) Show(server compute.Server) (compute.Server, error) {
+	var r compute.Server
+	c := exec.Command("VBoxManage", "showvminfo", server.Id(), "--machinereadable")
 	output, err := c.CombinedOutput()
 	if err != nil {
 		print(string(output))
@@ -119,8 +119,7 @@ func (s *Servers) Show(id string) (p.Server, error) {
 }
 
 // Create a server.
-func (s *Servers) Create(n interface{}) (p.Server, error) {
-	server := n.(p.Server)
+func (s *Servers) Create(server compute.Server) (compute.Server, error) {
 	c := exec.Command("VBoxManage", "createvm", "--name", server.Name(), "--register")
 	output, err := c.CombinedOutput()
 	if err != nil {
@@ -135,8 +134,8 @@ func (s *Servers) Create(n interface{}) (p.Server, error) {
 }
 
 // Destroy a server.
-func (s *Servers) Destroy(id string) (bool, error) {
-	c := exec.Command("VBoxManage", "unregistervm", id, "--delete")
+func (s *Servers) Destroy(server compute.Server) (bool, error) {
+	c := exec.Command("VBoxManage", "unregistervm", server.Id(), "--delete")
 	output, err := c.CombinedOutput()
 	if err != nil {
 		print(string(output))
@@ -149,8 +148,8 @@ func (s *Servers) Destroy(id string) (bool, error) {
 }
 
 // Start a server that is stopped.
-func (s *Servers) Start(id string) (bool, error) {
-	c := exec.Command("VBoxManage", "startvm", id, "--type", "headless")
+func (s *Servers) Start(server compute.Server) (bool, error) {
+	c := exec.Command("VBoxManage", "startvm", server.Id(), "--type", "headless")
 	output, err := c.CombinedOutput()
 	if err != nil {
 		print(string(output))
@@ -163,8 +162,8 @@ func (s *Servers) Start(id string) (bool, error) {
 }
 
 // Reboot a server.
-func (s *Servers) Reboot(id string) (bool, error) {
-	c := exec.Command("VBoxManage", "controlvm", id, "reset")
+func (s *Servers) Reboot(server compute.Server) (bool, error) {
+	c := exec.Command("VBoxManage", "controlvm", server.Id(), "reset")
 	output, err := c.CombinedOutput()
 	if err != nil {
 		print(string(output))
@@ -177,8 +176,8 @@ func (s *Servers) Reboot(id string) (bool, error) {
 }
 
 // Stop a server that is running.
-func (s *Servers) Stop(id string) (bool, error) {
-	c := exec.Command("VBoxManage", "controlvm", id, "poweroff")
+func (s *Servers) Stop(server compute.Server) (bool, error) {
+	c := exec.Command("VBoxManage", "controlvm", server.Id(), "poweroff")
 	output, err := c.CombinedOutput()
 	if err != nil {
 		print(string(output))

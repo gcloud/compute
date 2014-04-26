@@ -4,40 +4,31 @@
 package compute
 
 import (
-	p "github.com/gcloud/compute/providers"
-	"github.com/gcloud/identity"
+	i "github.com/gcloud/identity"
 )
 
-// The images available from the compute service.
-type Images struct {
-	Account  *identity.Account
-	Provider string
+type Images interface {
+	New(Map) Image
+	List() ([]Image, error)
+	Show(Image) (Image, error)
+	Create(Image) (Image, error)
+	Destroy(Image) (bool, error)
 }
 
-// List images available on the account.
-func (i *Images) List() ([]p.Image, error) {
-	provider := p.GetProvider(i.Provider)
-	provider.SetAccount(i.Account)
-	return provider.Images.List()
+type Image interface {
+	Id() string
+	Name() string
+	Path() string
+	String() string
+	MarshalJSON() ([]byte, error)
 }
 
-// Show image information for a given id.
-func (i *Images) Show(id string) (p.Image, error) {
-	provider := p.GetProvider(i.Provider)
-	provider.SetAccount(i.Account)
-	return provider.Images.Show(id)
+func RegisterImages(name string, images Images) {
+	GetProvider(name).Images = images
 }
 
-// Create a image.
-func (i *Images) Create(n interface{}) (p.Image, error) {
-	provider := p.GetProvider(i.Provider)
-	provider.SetAccount(i.Account)
-	return provider.Images.Create(n)
-}
-
-// Destroy a image.
-func (i *Images) Destroy(id string) (bool, error) {
-	provider := p.GetProvider(i.Provider)
-	provider.SetAccount(i.Account)
-	return provider.Images.Destroy(id)
+func GetImages(provider string, account *i.Account) Images {
+	Provider := GetProvider(provider)
+	Provider.SetAccount(account)
+	return Provider.Images
 }

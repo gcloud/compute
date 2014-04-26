@@ -5,80 +5,94 @@ package vbox
 
 import (
 	"testing"
+
+	"github.com/gcloud/compute"
 )
 
-var ImageName = "GCloudImage"
+var TestImage = &Image{name: "GCloudImage"}
+var TestImageServer compute.Server
 
 func init() {
 	servers := &Servers{}
-	servers.Create(&Server{name: ImageName})
+	s, err := servers.Create(&Server{name: TestImage.Name()})
+	if err != nil {
+		println("Server not created.")
+		return
+	}
+	TestImageServer = s
 }
 
 func Test_ImagesCreate(t *testing.T) {
-	images := NewImages()
-	image, err := images.Create(&Image{name: ImageName})
+	images := &Images{}
+	result, err := images.Create(TestImage)
 	if err != nil {
-		t.Error("Images Create failed with " + err.Error() + ".")
+		t.Errorf("Images Create failed with %s.", err)
 	}
-	if image == nil {
-		t.Error("Results should not be nil.")
+	if result == nil {
+		t.Error("Images Create result should not be nil.")
+		return
 	}
-	if len(image.Id()) < 40 {
+	if len(result.Id()) < 40 {
 		t.Error("Wrong value for id.")
 	}
-	if ImageName != image.Name() {
-		t.Errorf("Expected %s, but is %s", ImageName, image.Name())
+	if TestImage.Name() != result.Name() {
+		t.Errorf("Expected %s, but is %s", TestImage.Name(), result.Name())
 	}
 }
 
 func Test_ImagesList(t *testing.T) {
-	images := NewImages()
+	images := &Images{}
 	results, err := images.List()
 	if err != nil {
-		t.Error("Images List failed with " + err.Error() + "(bool, error).")
+		t.Errorf("Images List failed with %s.", err)
 	}
 	if results == nil {
-		t.Error("Results should not be nil.")
+		t.Error("Images List results should not be nil.")
+		return
 	}
-	for _, image := range results {
-		if len(image.Id()) < 40 {
+	for _, result := range results {
+		if len(result.Id()) < 40 {
 			t.Error("Wrong value for id.")
 		}
-		if ImageName != image.Name() {
-			t.Errorf("Expected %s, but is %s", ImageName, image.Name)
+		if TestImage.Name() != result.Name() {
+			t.Errorf("Expected %s, but is %s", TestImage.Name(), result.Name())
 		}
 	}
 }
 
 func Test_ImagesShow(t *testing.T) {
-	images := NewImages()
-	image, err := images.Show(ImageName)
+	images := &Images{}
+	result, err := images.Show(TestImage)
 	if err != nil {
-		t.Error("Images Show failed with " + err.Error() + ".")
+		t.Error("Images Show failed with %s.", err)
 	}
-	if image == nil {
-		t.Error("Results should not be nil.")
+	if result == nil {
+		t.Error("Images Show result should not be nil.")
+		return
 	}
-	if len(image.Id()) < 40 {
+	if len(result.Id()) < 40 {
 		t.Error("Wrong value for id.")
 	}
-	if ImageName != image.Name() {
-		t.Errorf("Expected %s, but is %s", ImageName, image.Name())
+	if TestImage.Name() != result.Name() {
+		t.Errorf("Expected %s, but is %s", TestImage.Name(), result.Name())
 	}
 }
 
 func Test_ImagesDestroy(t *testing.T) {
-	images := NewImages()
-	ok, err := images.Destroy(ImageName)
+	images := &Images{}
+	ok, err := images.Destroy(TestImage)
 	if !ok {
 		t.Error("Images Destroy failed.")
 	}
 	if err != nil {
-		t.Error("Images Destroy failed with " + err.Error() + ".")
+		t.Error("Images Destroy failed with %s.", err)
 	}
 }
 
 func Test_Done(t *testing.T) {
+	if TestImageServer == nil {
+		return
+	}
 	servers := &Servers{}
-	servers.Destroy(ImageName)
+	servers.Destroy(TestImageServer)
 }

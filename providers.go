@@ -1,25 +1,28 @@
-package providers
+// GCloud - Go Packages for Cloud Services.
+// Copyright (c) 2013 Garrett Woodworth (https://github.com/gwoo).
+
+package compute
 
 import (
-	"github.com/gcloud/identity"
+	i "github.com/gcloud/identity"
 )
 
 type Map map[string]interface{}
 
 type Provider struct {
 	Endpoint  string
-	Account   *identity.Account
+	Account   *i.Account
 	Servers   Servers
 	Images    Images
 	Locations Locations
 	Sizes     Sizes
 }
 
-func (p *Provider) SetAccount(account *identity.Account) {
+func (p *Provider) SetAccount(account *i.Account) {
 	p.Account = account
 }
 
-func (p *Provider) GetAccount() *identity.Account {
+func (p *Provider) GetAccount() *i.Account {
 	return p.Account
 }
 

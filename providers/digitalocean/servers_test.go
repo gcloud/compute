@@ -4,26 +4,21 @@
 package digitalocean
 
 import (
-	"fmt"
-	"net/http"
-	"net/http/httptest"
 	"testing"
 
-	p "github.com/gcloud/compute/providers"
+	"github.com/gcloud/compute"
 	"github.com/gcloud/identity"
 )
 
-var DOServerName = "GCloudServerOnDO"
+var TestServer compute.Server
 
 var account = &identity.Account{
 	Id:  "id",
 	Key: "key",
 }
 
-var provider *p.Provider
-
 func init() {
-	provider = p.GetProvider("digitalocean")
+	provider = compute.GetProvider("digitalocean")
 	provider.SetAccount(account)
 }
 
@@ -42,18 +37,20 @@ func Test_ServersCreate(t *testing.T) {
 	ts := newTestResponse(r)
 	defer ts.Close()
 	servers := &Servers{provider}
-	result, err := servers.Create(p.Map{
-		"name":      DOServerName,
-		"image_id":  1505447,
-		"size_id":   66,
-		"region_id": 1,
-		"ssh_keys":  18420,
-	})
+	result, err := servers.Create(servers.New(compute.Map{
+		"name":        "GCloudServer",
+		"image_id":    3101045,
+		"size_id":     66,
+		"region_id":   1,
+		"ssh_key_ids": 18420,
+	}))
+	TestServer = result
 	if err != nil {
-		t.Error("Servers Create failed with " + err.Error() + ".")
+		t.Errorf("Servers Create failed with %s", err)
 	}
 	if result == nil {
-		t.Error("Results should not be nil.")
+		t.Error("Servers Create result should not be nil.")
+		return
 	}
 	if len(result.Id()) <= 0 {
 		t.Error("Wrong value for id.")
@@ -87,10 +84,11 @@ func Test_ServersList(t *testing.T) {
 	servers := &Servers{provider}
 	results, err := servers.List()
 	if err != nil {
-		t.Error("Servers List failed with " + err.Error())
+		t.Errorf("Servers List failed with %s", err)
 	}
 	if results == nil {
-		t.Error("Results should not be nil.")
+		t.Error("Servers List results should not be nil.")
+		return
 	}
 	for _, server := range results {
 		if len(server.Id()) <= 0 {
@@ -123,12 +121,13 @@ func Test_ServersShow(t *testing.T) {
 	ts := newTestResponse(r)
 	defer ts.Close()
 	servers := &Servers{provider}
-	result, err := servers.Show("100823")
+	result, err := servers.Show(TestServer)
 	if err != nil {
-		t.Error("Servers Show failed with " + err.Error() + ".")
+		t.Errorf("Servers Show failed with %s.", err)
 	}
 	if result == nil {
-		t.Error("Results should not be nil.")
+		t.Error("Servers Show result should not be nil.")
+		return
 	}
 	if len(result.Id()) <= 0 {
 		t.Error("Wrong value for id.")
@@ -146,12 +145,12 @@ func Test_ServersStart(t *testing.T) {
 	ts := newTestResponse(r)
 	defer ts.Close()
 	servers := &Servers{provider}
-	ok, err := servers.Start("100823")
+	ok, err := servers.Start(TestServer)
 	if !ok {
 		t.Error("Servers Start failed.")
 	}
 	if err != nil {
-		t.Error("Servers Start failed with " + err.Error() + ".")
+		t.Errorf("Servers Start failed with %s.", err)
 	}
 }
 
@@ -163,12 +162,12 @@ func Test_ServersStop(t *testing.T) {
 	ts := newTestResponse(r)
 	defer ts.Close()
 	servers := &Servers{provider}
-	ok, err := servers.Stop("100823")
+	ok, err := servers.Stop(TestServer)
 	if !ok {
 		t.Error("Servers Stop failed.")
 	}
 	if err != nil {
-		t.Error("Servers Stop failed with " + err.Error() + ".")
+		t.Errorf("Servers Stop failed with %s.", err)
 	}
 }
 
@@ -180,12 +179,12 @@ func Test_ServersReboot(t *testing.T) {
 	ts := newTestResponse(r)
 	defer ts.Close()
 	servers := &Servers{provider}
-	ok, err := servers.Reboot("100823")
+	ok, err := servers.Reboot(TestServer)
 	if !ok {
 		t.Error("Servers Reboot failed.")
 	}
 	if err != nil {
-		t.Error("Servers Reboot failed with " + err.Error() + ".")
+		t.Errorf("Servers Reboot failed with %s.", err)
 	}
 }
 
@@ -197,20 +196,11 @@ func Test_ServersDestroy(t *testing.T) {
 	ts := newTestResponse(r)
 	defer ts.Close()
 	servers := &Servers{provider}
-	ok, err := servers.Destroy("100823")
+	ok, err := servers.Destroy(TestServer)
 	if !ok {
 		t.Error("Servers Destroy failed.")
 	}
 	if err != nil {
-		t.Error("Servers Destroy failed with " + err.Error() + ".")
+		t.Errorf("Servers Destroy failed with %s.", err)
 	}
-}
-
-func newTestResponse(response []byte) *httptest.Server {
-	testServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "application/json")
-		fmt.Fprintf(w, "%s", string(response))
-	}))
-	provider.Endpoint = testServer.URL
-	return testServer
 }

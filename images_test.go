@@ -5,8 +5,6 @@ package compute
 
 import (
 	"testing"
-
-	p "github.com/gcloud/compute/providers"
 )
 
 type MockImage struct {
@@ -23,38 +21,49 @@ func (m *MockImage) Name() string {
 func (m *MockImage) File() string {
 	return "file"
 }
+func (m *MockImage) String() string {
+	return ""
+}
+func (m *MockImage) MarshalJSON() ([]byte, error) {
+	return []byte{}, nil
+}
 
 type MockImages struct{}
 
-func (i *MockImages) List() ([]p.Image, error) {
-	results := make([]p.Image, 0)
+func (i *MockImages) New(m Map) Image {
+	return &MockImage{}
+}
+
+func (i *MockImages) List() ([]Image, error) {
+	results := make([]Image, 0)
 	r := &MockImage{name: "My Image", id: "616fb98f-46ca-475e-917e-2563e5a8cd19"}
 	return append(results, r), nil
 }
-func (i *MockImages) Show(id string) (p.Image, error) {
+func (i *MockImages) Show(Image) (Image, error) {
 	r := &MockImage{name: "My Image", id: "616fb98f-46ca-475e-917e-2563e5a8cd19"}
 	return r, nil
 }
-func (i *MockImages) Create(n interface{}) (p.Image, error) {
+func (i *MockImages) Create(Image) (Image, error) {
 	r := &MockImage{name: "My Image", id: "616fb98f-46ca-475e-917e-2563e5a8cd19"}
 	return r, nil
 }
-func (i *MockImages) Destroy(id string) (bool, error) {
+func (i *MockImages) Destroy(Image) (bool, error) {
 	return true, nil
 }
 
 func init() {
-	p.RegisterImages("mock", &MockImages{})
+	RegisterImages("mock", &MockImages{})
 }
 
 func Test_ImagesList(t *testing.T) {
-	images := &Images{Provider: "mock"}
+	images := GetImages("mock", nil)
 	results, err := images.List()
 	if err != nil {
-		t.Error("Images List failed with " + err.Error() + "(bool, error).")
+		t.Error("Images List failed with %s.", err)
 	}
 	if results == nil {
-		t.Error("Results should not be nil.")
+		t.Error("Images List results should not be nil.")
+		return
 	}
 	for _, v := range results {
 		if v.Id() != "616fb98f-46ca-475e-917e-2563e5a8cd19" {
@@ -67,13 +76,14 @@ func Test_ImagesList(t *testing.T) {
 }
 
 func Test_ImagesShow(t *testing.T) {
-	images := &Images{Provider: "mock"}
-	result, err := images.Show("616fb98f-46ca-475e-917e-2563e5a8cd19")
+	images := GetImages("mock", nil)
+	result, err := images.Show(&MockImage{id: "616fb98f-46ca-475e-917e-2563e5a8cd19"})
 	if err != nil {
-		t.Error("Images Show failed with " + err.Error() + ".")
+		t.Error("Images Show failed with %s.", err)
 	}
 	if result == nil {
-		t.Error("Results should not be nil.")
+		t.Error("Images Show results should not be nil.")
+		return
 	}
 	r := result
 	if r.Id() != "616fb98f-46ca-475e-917e-2563e5a8cd19" {
@@ -85,13 +95,14 @@ func Test_ImagesShow(t *testing.T) {
 }
 
 func Test_ImagesCreate(t *testing.T) {
-	images := &Images{Provider: "mock"}
-	result, err := images.Create(MockImage{name: "My Image"})
+	images := GetImages("mock", nil)
+	result, err := images.Create(&MockImage{name: "My Image"})
 	if err != nil {
-		t.Error("Images Create failed with " + err.Error() + ".")
+		t.Error("Images Create failed with %s.", err)
 	}
 	if result == nil {
-		t.Error("Results should not be nil.")
+		t.Error("Images Create results should not be nil.")
+		return
 	}
 	r := result
 	if r.Id() != "616fb98f-46ca-475e-917e-2563e5a8cd19" {
@@ -103,8 +114,8 @@ func Test_ImagesCreate(t *testing.T) {
 }
 
 func Test_ImagesDestroy(t *testing.T) {
-	images := &Images{Provider: "mock"}
-	ok, err := images.Destroy("616fb98f-46ca-475e-917e-2563e5a8cd19")
+	images := GetImages("mock", nil)
+	ok, err := images.Destroy(&MockImage{id: "616fb98f-46ca-475e-917e-2563e5a8cd19"})
 	if !ok {
 		t.Error("Images Destroy failed.")
 	}
