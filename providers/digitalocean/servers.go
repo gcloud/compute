@@ -35,7 +35,6 @@ type droplet struct {
 	Image_id           int
 	Size_id            int
 	Region_id          int
-	Ssh_key_ids        string
 	Event_id           int       `json:",omitempty"`
 	Backups_active     bool      `json:",omitempty"`
 	Ip_address         string    `json:",omitempty"`
@@ -147,7 +146,6 @@ func (s *Servers) Show(server compute.Server) (compute.Server, error) {
 // Create a droplet.
 func (s *Servers) Create(server compute.Server) (compute.Server, error) {
 	var r compute.Server
-	fmt.Printf("%#v", server)
 	response, err := request(s.provider, "GET", "/droplets/new", server.Map())
 	if err != nil {
 		return r, err
