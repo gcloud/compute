@@ -49,9 +49,10 @@ func (s *Server) String() string {
 	return string(b)
 }
 func (s *Server) MarshalJSON() ([]byte, error) {
-	return json.Marshal(compute.Map{
-		"id": s.Id(), "name": s.Name(),
-	})
+	return json.Marshal(s.Map())
+}
+func (s *Server) Map() compute.Map {
+	return compute.Map{"id": s.Id(), "name": s.Name()}
 }
 
 type Servers struct{}

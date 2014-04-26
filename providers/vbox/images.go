@@ -47,9 +47,10 @@ func (i *Image) String() string {
 	return string(b)
 }
 func (i *Image) MarshalJSON() ([]byte, error) {
-	return json.Marshal(compute.Map{
-		"id": i.id, "name": i.name,
-	})
+	return json.Marshal(i.Map())
+}
+func (i *Image) Map() compute.Map {
+	return compute.Map{"id": i.Id(), "name": i.Name(), "path": i.Path()}
 }
 
 type Images struct {

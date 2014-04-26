@@ -21,6 +21,7 @@ type Image interface {
 	Path() string
 	String() string
 	MarshalJSON() ([]byte, error)
+	Map() Map
 }
 
 func RegisterImages(name string, images Images) {

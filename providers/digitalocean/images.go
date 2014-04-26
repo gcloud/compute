@@ -44,27 +44,31 @@ func (i *image) toImage() *Image {
 }
 
 type Image struct {
-	data *image
+	data    *image
+	generic compute.Map
 }
 
-func (s *Image) Id() string {
-	return fmt.Sprintf("%d", s.data.Id)
+func (i *Image) Id() string {
+	return fmt.Sprintf("%d", i.data.Id)
 }
-func (s *Image) Name() string {
-	return s.data.Name
+func (i *Image) Name() string {
+	return i.data.Name
 }
-func (s *Image) Path() string {
+func (i *Image) Path() string {
 	return ""
 }
-func (s *Image) String() string {
-	b, err := s.MarshalJSON()
+func (i *Image) String() string {
+	b, err := i.MarshalJSON()
 	if err != nil {
 		return ""
 	}
 	return string(b)
 }
-func (s *Image) MarshalJSON() ([]byte, error) {
-	return json.Marshal(s.data)
+func (i *Image) MarshalJSON() ([]byte, error) {
+	return json.Marshal(i.data)
+}
+func (i *Image) Map() compute.Map {
+	return i.generic
 }
 
 type Images struct {
@@ -77,7 +81,9 @@ func (i *Images) New(m compute.Map) compute.Image {
 	if err != nil {
 		return nil
 	}
-	return newImage.toImage()
+	im := newImage.toImage()
+	im.generic = m
+	return im
 }
 
 // List images available on the account.

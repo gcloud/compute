@@ -42,7 +42,6 @@ func request(provider *compute.Provider, method string, path string, data interf
 	url := provider.Endpoint + path
 	url += fmt.Sprintf("?client_id=%s&api_key=%s", provider.Account.Id, provider.Account.Key)
 	url += fmt.Sprintf("&%s", urlencode(data))
-	//fmt.Printf("%s\n", url)
 	req, err := http.NewRequest(method, url, nil)
 	if err != nil {
 		return nil, err
@@ -61,7 +60,6 @@ func request(provider *compute.Provider, method string, path string, data interf
 
 func urlencode(data interface{}) string {
 	var q bytes.Buffer
-	//fmt.Printf("%#v", data)
 	switch d := data.(type) {
 	case compute.Map:
 		for k, value := range d {

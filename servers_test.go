@@ -40,6 +40,11 @@ func (m *MockServer) MarshalJSON() ([]byte, error) {
 		"id": m.Id(), "name": m.Name(),
 	})
 }
+func (m *MockServer) Map() Map {
+	return Map{
+		"id": m.Id(), "name": m.Name(),
+	}
+}
 
 type MockServers struct{}
 

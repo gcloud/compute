@@ -18,14 +18,19 @@ func (m *MockImage) Id() string {
 func (m *MockImage) Name() string {
 	return m.name
 }
-func (m *MockImage) File() string {
-	return "file"
+func (m *MockImage) Path() string {
+	return "path"
 }
 func (m *MockImage) String() string {
 	return ""
 }
 func (m *MockImage) MarshalJSON() ([]byte, error) {
 	return []byte{}, nil
+}
+func (m *MockImage) Map() Map {
+	return Map{
+		"id": m.Id(), "name": m.Name(),
+	}
 }
 
 type MockImages struct{}

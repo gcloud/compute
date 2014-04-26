@@ -34,14 +34,15 @@ type droplet struct {
 	Name               string
 	Image_id           int
 	Size_id            int
-	Event_id           int
 	Region_id          int
-	Backups_active     bool
-	Ip_address         string
-	Private_ip_address string
-	Locked             bool
-	Status             string
-	Created_at         time.Time
+	Ssh_key_ids        string
+	Event_id           int       `json:",omitempty"`
+	Backups_active     bool      `json:",omitempty"`
+	Ip_address         string    `json:",omitempty"`
+	Private_ip_address string    `json:",omitempty"`
+	Locked             bool      `json:",omitempty"`
+	Status             string    `json:",omitempty"`
+	Created_at         time.Time `json:",omitempty"`
 }
 
 func (d *droplet) toServer() *Server {
@@ -49,7 +50,8 @@ func (d *droplet) toServer() *Server {
 }
 
 type Server struct {
-	data *droplet
+	data    *droplet
+	generic compute.Map
 }
 
 func (s *Server) Id() string {
@@ -83,17 +85,22 @@ func (s *Server) String() string {
 func (s *Server) MarshalJSON() ([]byte, error) {
 	return json.Marshal(s.data)
 }
+func (s *Server) Map() compute.Map {
+	return s.generic
+}
 
 type Servers struct {
 	provider *compute.Provider
 }
 
 func (s *Servers) New(m compute.Map) compute.Server {
-	var server *Server
-	err := mapstructure.Decode(m, &server)
+	var drop droplet
+	err := mapstructure.Decode(m, &drop)
 	if err != nil {
 		return nil
 	}
+	server := drop.toServer()
+	server.generic = m
 	return server
 }
 
@@ -140,7 +147,8 @@ func (s *Servers) Show(server compute.Server) (compute.Server, error) {
 // Create a droplet.
 func (s *Servers) Create(server compute.Server) (compute.Server, error) {
 	var r compute.Server
-	response, err := request(s.provider, "GET", "/droplets/new", server)
+	fmt.Printf("%#v", server)
+	response, err := request(s.provider, "GET", "/droplets/new", server.Map())
 	if err != nil {
 		return r, err
 	}

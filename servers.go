@@ -27,6 +27,7 @@ type Server interface {
 	Image() string
 	String() string
 	MarshalJSON() ([]byte, error)
+	Map() Map
 }
 
 func RegisterServers(provider string, servers Servers) {
